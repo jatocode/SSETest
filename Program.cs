@@ -14,10 +14,9 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi(); // openapi/v1.json
 }
 
 app.UseHttpsRedirection();
@@ -26,10 +25,10 @@ app.MapGet("/", () => "SSE Test!");
 
 // Den här kommer direkt från Microsofts exempel på SSE med .NET 10
 // flyttade ut metoden bara 
-app.MapGet("/json-item", (CancellationToken cancellationToken) =>
+app.MapGet("/heartbeats", (CancellationToken cancellationToken) =>
 {
     return TypedResults.ServerSentEvents(GetHeartRate(cancellationToken),
-                                                  eventType: "heartRate");
+                                         eventType: "heartRate");
 });
 
 app.UseCors();

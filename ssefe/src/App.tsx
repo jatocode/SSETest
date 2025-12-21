@@ -5,13 +5,13 @@ import './App.css'
 
 // Ville testa att använda signals också...
 const latestHeartRate = signal(0);
-const backendUrl = 'http://localhost:5144/json-item';
+const backendUrl = 'http://localhost:5144/heartbeats';
 
 function App() {
 
   const [heartRates, setHeartRates] = useState<HeartRate[]>([]);
   useEffect(() => {
-    const eventSource = setupEventSourceHeartbeats(backendUrl,(heartRate: HeartRate) => {
+    const eventSource = setupEventSourceHeartbeats(backendUrl, (heartRate: HeartRate) => {
       setHeartRates((prevHeartRates) => [heartRate, ...prevHeartRates]);
       latestHeartRate.value = heartRate.heartRate;
     });
@@ -50,18 +50,5 @@ function setupEventSourceHeartbeats(url: string, onHeartRate: (heartRate: HeartR
     });
   });
 
-  eventSource.onopen = () => {
-    console.log('Connection opened');
-  };
-
-  eventSource.onmessage = (event) => {
-    console.log('Received message:', event);
-  };
-
-  eventSource.onerror = () => {
-    if (eventSource.readyState === EventSource.CONNECTING) {
-      console.log('Reconnecting...');
-    }
-  };
   return eventSource;
 }

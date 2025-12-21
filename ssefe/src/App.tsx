@@ -20,7 +20,7 @@ function App() {
     <ul>
       {heartRates.slice(0, 5).map((hr, index) => (
         <li key={index}>
-          {hr.timestamp.toString()}: {hr.heartRate} bpm
+          {hr.timestamp.toLocaleTimeString()}: {hr.heartRate} bpm
         </li>
       ))}
     </ul>
@@ -34,9 +34,11 @@ function setupEventSourceHeartbeats(onHeartRate: (heartRate: HeartRate) => void)
   const eventSource = new EventSource('http://localhost:5144/json-item');
 
   eventSource.addEventListener('heartRate', (event) => {
-    const heartRateData:HeartRate = JSON.parse(event.data);
-    onHeartRate(heartRateData);
-    // console.log(`New heartrate @${heartRateData.timestamp}: ${heartRateData.heartRate}`);
+    const heartRateData = JSON.parse(event.data);
+    onHeartRate({
+      heartRate: heartRateData.heartRate,
+      timestamp: new Date(heartRateData.timestamp)
+    });
   });
 
   eventSource.onopen = () => {

@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react'
-import './App.css'
+import { signal } from '@preact/signals-react';
 import type { HeartRate } from './HeartRate';
+import './App.css'
+
+// Ville testa att använda signals också...
+const latestHeartRate = signal(0);
+const backendUrl = 'http://localhost:5144/json-item';
 
 function App() {
 
   const [heartRates, setHeartRates] = useState<HeartRate[]>([]);
   useEffect(() => {
-    const eventSource = setupEventSourceHeartbeats((heartRate: HeartRate) => {
+    const eventSource = setupEventSourceHeartbeats(backendUrl,(heartRate: HeartRate) => {
       setHeartRates((prevHeartRates) => [heartRate, ...prevHeartRates]);
+      latestHeartRate.value = heartRate.heartRate;
     });
 
     return () => eventSource.close();
@@ -17,6 +23,9 @@ function App() {
   return (
     <>
     <h2>Heart Rate Monitor</h2>
+    <div className='latest'>Senaste: {latestHeartRate.value} bpm</div>
+
+    <h3>Log:</h3>
     <ul>
       {heartRates.slice(0, 5).map((hr, index) => (
         <li key={index}>
@@ -30,8 +39,8 @@ function App() {
 
 export default App
 
-function setupEventSourceHeartbeats(onHeartRate: (heartRate: HeartRate) => void) {
-  const eventSource = new EventSource('http://localhost:5144/json-item');
+function setupEventSourceHeartbeats(url: string, onHeartRate: (heartRate: HeartRate) => void) {
+  const eventSource = new EventSource(url);
 
   eventSource.addEventListener('heartRate', (event) => {
     const heartRateData = JSON.parse(event.data);
@@ -49,7 +58,6 @@ function setupEventSourceHeartbeats(onHeartRate: (heartRate: HeartRate) => void)
     console.log('Received message:', event);
   };
 
-  // Handle errors and reconnections
   eventSource.onerror = () => {
     if (eventSource.readyState === EventSource.CONNECTING) {
       console.log('Reconnecting...');

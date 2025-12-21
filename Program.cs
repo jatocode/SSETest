@@ -27,6 +27,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Den här kommer direkt från Microsofts exempel på SSE med .NET 10
 app.MapGet("/json-item", (CancellationToken cancellationToken) =>
 {
     async IAsyncEnumerable<HeartRateRecord> GetHeartRate(

@@ -1,6 +1,6 @@
 @ssetest_HostAddress = http://localhost:5144
 
-GET {{ssetest_HostAddress}}/weatherforecast/
+GET {{ssetest_HostAddress}}/heartbeats/
 Accept: application/json
 
 ###
